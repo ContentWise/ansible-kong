@@ -1,0 +1,9 @@
+---
+- src: https://github.com/ContentWise/ansible-java
+  version: master
+  name: contentwise.java
+  scm: git
+- src: https://github.com/ContentWise/ansible-cassandra
+  version: master
+  name: contentwise.cassandra
+  scm: git

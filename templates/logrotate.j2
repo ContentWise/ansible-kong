@@ -1,0 +1,9 @@
+{{ kong_log_dir }}/*.log {
+    {{ kong_logrotate_occurrence }}
+    rotate {{ kong_logrotate_rotate }}
+    maxsize {{ kong_logrotate_maxsize }}
+    missingok
+    dateext
+    copytruncate
+    compress
+}

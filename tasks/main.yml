@@ -1,0 +1,104 @@
+---
+- name: ensure user kong exists
+  user:
+    name: "{{ kong_user }}"
+
+- block:
+    - name: install required dependencies
+      package:
+        name: "{{ item }}"
+      when: 
+      with_items:
+        - openssl
+        - libpcre3
+        - procps
+        - perl
+    - name: install kong
+      apt:
+        deb: "{{ kong_deb_location }}"
+      notify:
+        - run kong migrations
+        - reload kong
+  when: ansible_os_family == 'Debian'
+
+- block:
+    - name: install required dependencies
+      package:
+        name: "{{ item }}"
+      when: 
+      with_items:
+        - epel-release
+    - name: install kong
+      yum:
+        name: "{{ kong_rpm_location }}"
+        disable_gpg_check: true
+      notify:
+        - run kong migrations
+        - reload kong
+  when: ansible_os_family == 'RedHat'
+
+
+- name: set permissions to kong directories
+  file:
+    path:  "{{ item }}"
+    owner: "{{ kong_user }}"
+    state: directory
+  with_items:
+    - "{{ kong_working_dir }}"
+    - "{{ kong_log_dir }}"
+
+- name: download custom plugins
+  unarchive:
+    src: "{{ item.url }}"
+    dest: "/tmp"
+    remote_src: true
+  with_items: "{{ kong_custom_plugins }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: plugins_result
+
+- name: install custom plugins
+  command: /usr/local/bin/luarocks make
+  args:
+    chdir: "/tmp/{{ ( item.item.url | basename | splitext )[0] | regex_replace('\\.tar$','') }}"
+  with_items: "{{ plugins_result.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  changed_when: false
+
+- name: make sure logrotate is installed
+  package:
+    name: logrotate
+
+- name: create logrotate config for Kong logs
+  template:
+    src:  logrotate.j2
+    dest: /etc/logrotate.d/kong
+    owner: "{{ kong_user }}"
+  notify: reload kong
+
+- name: write kong config
+  template:
+    dest: "{{ kong_conf_dir }}/kong.conf"
+    group: "{{ kong_group }}"
+    mode: 0644
+    owner: "{{ kong_user }}"
+    src: kong.conf.j2
+  notify:
+    - run kong migrations
+    - reload kong
+
+- name: create kong systemd script
+  template:
+    dest: /etc/systemd/system/kong.service
+    mode: 0755
+    src: kong.service.j2
+  notify: reload kong
+
+- meta: flush_handlers
+
+- name: ensure kong is started
+  systemd:
+    name: kong
+    enabled: yes
+    state: started

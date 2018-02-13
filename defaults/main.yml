@@ -1,0 +1,38 @@
+---
+kong_version: "0.12.1"
+kong_user: kong
+kong_group: kong
+
+kong_deb_version: "{{ kong_version }}.xenial"
+kong_deb_location: "https://bintray.com/kong/kong-community-edition-deb/download_file?file_path=dists/kong-community-edition-{{ kong_deb_version }}.all.deb"
+kong_rpm_version: "{{ kong_version }}.el7"
+kong_rpm_location: https://bintray.com/kong/kong-community-edition-rpm/download_file?file_path=dists/kong-community-edition-{{ kong_rpm_version }}.noarch.rpm
+
+kong_working_dir: /usr/local/kong/
+kong_log_dir: /var/log/kong
+kong_log_level: notice
+kong_conf_dir: /etc/kong
+
+kong_logrotate_occurrence: weekly
+kong_logrotate_rotate: 5
+kong_logrotate_maxsize: 500M
+
+kong_nginx_worker_processes: auto
+kong_mem_cache_size: 128m
+
+kong_proxy_port: 8000
+kong_proxy_listen: "0.0.0.0:{{ kong_proxy_port }}"
+kong_admin_port: 8001
+kong_admin_listen: "0.0.0.0:{{ kong_admin_port }}"
+
+kong_database: cassandra
+kong_cassandra_seeds:
+  - localhost
+kong_cassandra_port: 9042
+kong_cassandra_keyspace: kong
+kong_db_update_frequency: 5
+kong_db_update_propagation: 1
+
+kong_custom_plugins: [] # e.g.: {"name": "my-custom-plugin", "url": "https://plugin-location.tar.gz"}. The archive should contain a .rockspec file
+
+kong_install_dashboard: true

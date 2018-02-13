@@ -1,0 +1,13 @@
+---
+- name: run kong migrations
+  run_once: yes
+  command: "{{ kong_binary }} migrations up"
+  become_user: "{{ kong_user }}"
+  register: result
+  until: result.rc == 0
+
+- name: reload kong
+  systemd:
+    name: kong
+    state: reloaded
+    daemon_reload: yes

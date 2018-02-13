@@ -1,0 +1,20 @@
+[Unit]
+Description=Kong
+After=network.target
+
+[Service]
+WorkingDirectory={{ kong_working_dir }}
+User={{ kong_user }}
+Group={{ kong_group }}
+LimitAS=infinity
+LimitRSS=infinity
+LimitCORE=infinity
+LimitNOFILE=65536
+ExecStart={{ kong_binary }} start --conf {{ kong_conf_dir }}/kong.conf
+ExecStop={{ kong_binary }} stop
+ExecReload={{ kong_binary }} reload --conf {{ kong_conf_dir }}/kong.conf
+Type=forking
+PIDFile={{ kong_working_dir }}/pids/nginx.pid
+
+[Install]
+WantedBy=default.target
