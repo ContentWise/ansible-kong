@@ -34,5 +34,3 @@ kong_db_update_frequency: 5
 kong_db_update_propagation: 1
 
 kong_custom_plugins: [] # e.g.: {"name": "my-custom-plugin", "url": "https://plugin-location.tar.gz"}. The archive should contain a .rockspec file
-
-kong_install_dashboard: true

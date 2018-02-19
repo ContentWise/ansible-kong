@@ -1,5 +1,5 @@
 ---
-- name: ensure user kong exists
+- name: ensure user {{ kong_user }} exists
   user:
     name: "{{ kong_user }}"
 
@@ -16,9 +16,7 @@
     - name: install kong
       apt:
         deb: "{{ kong_deb_location }}"
-      notify:
-        - run kong migrations
-        - reload kong
+      notify: reload kong
   when: ansible_os_family == 'Debian'
 
 - block:
@@ -32,9 +30,7 @@
       yum:
         name: "{{ kong_rpm_location }}"
         disable_gpg_check: true
-      notify:
-        - run kong migrations
-        - reload kong
+      notify: reload kong
   when: ansible_os_family == 'RedHat'
 
 
@@ -84,9 +80,7 @@
     mode: 0644
     owner: "{{ kong_user }}"
     src: kong.conf.j2
-  notify:
-    - run kong migrations
-    - reload kong
+  notify: reload kong
 
 - name: create kong systemd script
   template:
@@ -95,10 +89,33 @@
     src: kong.service.j2
   notify: reload kong
 
-- meta: flush_handlers
+- name: ensure kong is started
+  systemd:
+    name: kong
+    enabled: yes
+    state: started
+  register: service_result
+  ignore_errors: True
+
+- name: check if migrations need to be run
+  command: service kong status
+  register: service_status_result
+  failed_when: no
+  when: service_result | failed
+
+- name: run migrations
+  run_once: yes
+  become_user: "{{ kong_user }}"
+  command: "{{ kong_binary }} migrations up"
+  register: migrations_result
+  when: ( service_result | failed ) and ( 'missing migration' in service_status_result.stdout )
+  until: migrations_result.rc == 0
 
 - name: ensure kong is started
   systemd:
     name: kong
     enabled: yes
     state: started
+  when: service_result | failed
+
+
