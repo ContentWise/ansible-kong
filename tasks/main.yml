@@ -89,16 +89,23 @@
     src: kong.service.j2
   notify: reload kong
 
+- name: wait for cassandra to respond
+  wait_for:
+    host: "{{ item }}"
+    port: "{{ kong_cassandra_port }}"
+  with_items: "{{ kong_cassandra_seeds }}"
+  ignore_errors: yes
+
 - name: ensure kong is started
   systemd:
     name: kong
     enabled: yes
     state: started
   register: service_result
-  ignore_errors: True
+  ignore_errors: yes
 
 - name: check if migrations need to be run
-  command: service kong status
+  command: systemctl status kong
   register: service_status_result
   failed_when: no
   when: service_result | failed
@@ -108,7 +115,7 @@
   become_user: "{{ kong_user }}"
   command: "{{ kong_binary }} migrations up"
   register: migrations_result
-  when: ( service_result | failed ) and ( 'missing migration' in service_status_result.stdout )
+  when: service_result | failed and service_status_result.stdout.find('missing migration')
   until: migrations_result.rc == 0
 
 - name: ensure kong is started
