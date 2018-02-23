@@ -4,9 +4,9 @@ kong_user: kong
 kong_group: kong
 
 kong_deb_version: "{{ kong_version }}.xenial"
-kong_deb_location: "https://bintray.com/kong/kong-community-edition-deb/download_file?file_path=dists/kong-community-edition-{{ kong_deb_version }}.all.deb"
+kong_deb_location: "https://kong.bintray.com/kong-community-edition-deb/dists/kong-community-edition-{{ kong_deb_version }}.all.deb"
 kong_rpm_version: "{{ kong_version }}.el7"
-kong_rpm_location: https://bintray.com/kong/kong-community-edition-rpm/download_file?file_path=centos%2F7%2Fkong-community-edition-{{ kong_rpm_version }}.noarch.rpm
+kong_rpm_location: "https://kong.bintray.com/kong-community-edition-rpm/centos/7/kong-community-edition-{{ kong_rpm_version }}.noarch.rpm"
 
 kong_working_dir: /usr/local/kong/
 kong_log_dir: /var/log/kong

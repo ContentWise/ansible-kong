@@ -5,4 +5,5 @@
     - role: contentwise.java
       redhat_java_version: java-1.8.0-openjdk-1.8.0.151-5.b12.el7_4.x86_64 # Due to https://issues.apache.org/jira/browse/CASSANDRA-14173
     - role: contentwise.cassandra
+      cassandra_sleep_between_restarts: 0
     - role: contentwise.kong
