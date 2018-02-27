@@ -16,7 +16,7 @@
     - name: install kong
       apt:
         deb: "{{ kong_deb_location }}"
-      notify: reload kong
+      notify: sequentially reload kong
   when: ansible_os_family == 'Debian'
 
 - block:
@@ -30,7 +30,7 @@
       yum:
         name: "{{ kong_rpm_location }}"
         disable_gpg_check: true
-      notify: reload kong
+      notify: sequentially reload kong
   when: ansible_os_family == 'RedHat'
 
 
@@ -71,7 +71,7 @@
     src:  logrotate.j2
     dest: /etc/logrotate.d/kong
     owner: "{{ kong_user }}"
-  notify: reload kong
+  notify: sequentially reload kong
 
 - name: write kong config
   template:
@@ -80,14 +80,16 @@
     mode: 0644
     owner: "{{ kong_user }}"
     src: kong.conf.j2
-  notify: reload kong
+  notify: sequentially reload kong
 
 - name: create kong systemd script
   template:
     dest: /etc/systemd/system/kong.service
     mode: 0755
     src: kong.service.j2
-  notify: reload kong
+  notify:
+    - reload systemd
+    - sequentially reload kong
 
 - name: wait for cassandra to respond
   wait_for:

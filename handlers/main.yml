@@ -1,5 +1,13 @@
 ---
-- name: reload kong
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: sequentially reload kong
+  # `serial: 1` would be the proper solution here, but that can only be set on play level (upstream issue: https://github.com/ansible/ansible/issues/12170)
+  run_once: true
+  with_items: "{{ play_hosts }}"
+  delegate_to: "{{ item }}"
   systemd:
     name: kong
     state: reloaded
