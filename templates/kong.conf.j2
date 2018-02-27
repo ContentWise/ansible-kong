@@ -357,6 +357,7 @@ cassandra_keyspace = {{ kong_cassandra_keyspace }}
                                  # of the local (closest) datacenter for this
                                  # Kong node.
 
+cassandra_repl_strategy = {{ kong_cassandra_repl_strategy }}
 #cassandra_repl_strategy = SimpleStrategy  # When migrating for the first time,
                                            # Kong will use this setting to
                                            # create your keyspace.
@@ -370,6 +371,7 @@ cassandra_repl_factor = {{ kong_cassandra_repl_factor }}
                                  # replication factor when using the
                                  # `SimpleStrategy`.
 
+{% if kong_cassandra_repl_strategy == 'NetworkTopologyStrategy' %}cassandra_data_centers = {{ kong_cassandra_data_centers }}{% endif %}
 #cassandra_data_centers = dc1:2,dc2:3  # When migrating for the first time,
                                        # will use this setting when using the
                                        # `NetworkTopologyStrategy`.

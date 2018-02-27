@@ -30,7 +30,9 @@ kong_cassandra_seeds:
   - localhost
 kong_cassandra_port: 9042
 kong_cassandra_keyspace: kong
+kong_cassandra_repl_strategy: SimpleStrategy
 kong_cassandra_repl_factor: 1
+kong_cassandra_data_centers: dc1:2,dc2:3 # Used only when kong_cassandra_repl_strategy = 'NetworkTopologyStrategy'
 kong_db_update_frequency: 5
 kong_db_update_propagation: 1
 
