@@ -104,20 +104,20 @@
     enabled: yes
     state: started
   register: service_result
-  ignore_errors: yes
+  failed_when: no
 
 - name: check if migrations need to be run
   command: systemctl status kong
   register: service_status_result
   failed_when: no
-  when: service_result | failed
+  when: "'failed' in ( service_result.msg | default('') )"
 
 - name: run migrations
   run_once: yes
   become_user: "{{ kong_user }}"
   command: "{{ kong_binary }} migrations up"
   register: migrations_result
-  when: service_result | failed and service_status_result.stdout.find('missing migration')
+  when:  "'failed' in ( service_result.msg | default('') ) and service_status_result.stdout.find('missing migration')"
   until: migrations_result.rc == 0
 
 - name: ensure kong is started
@@ -125,6 +125,6 @@
     name: kong
     enabled: yes
     state: started
-  when: service_result | failed
+  when: "'failed' in ( service_result.msg | default('') )"
 
 
