@@ -9,6 +9,7 @@
   with_items: "{{ play_hosts }}"
   delegate_to: "{{ item }}"
   shell: systemctl restart kong && sleep {{ kong_sleep_between_restarts }}
+  listen: sequentially restart kong
 
 - name: sequentially reload kong with {{ kong_sleep_between_reloads }}s sleep between each reload
   # `serial: 1` would be the proper solution here, but that can only be set on play level (upstream issue: https://github.com/ansible/ansible/issues/12170)
@@ -16,3 +17,4 @@
   with_items: "{{ play_hosts }}"
   delegate_to: "{{ item }}"
   shell: systemctl reload kong && sleep {{ kong_sleep_between_reloads }}
+  listen: sequentially reload kong
