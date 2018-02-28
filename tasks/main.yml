@@ -33,7 +33,6 @@
       notify: sequentially reload kong
   when: ansible_os_family == 'RedHat'
 
-
 - name: set permissions to kong directories
   file:
     path:  "{{ item }}"
@@ -98,6 +97,16 @@
   with_items: "{{ kong_cassandra_seeds }}"
   ignore_errors: yes
 
+- name: trigger forced kong reload
+  command: echo "triggering kong reload"
+  notify: sequentially reload kong
+  when: kong_force_reload | bool
+
+- name: trigger forced kong restart
+  command: echo "triggering kong restart"
+  notify: sequentially restart kong
+  when: kong_force_restart | bool
+
 - name: ensure kong is started
   systemd:
     name: kong
@@ -126,5 +135,4 @@
     enabled: yes
     state: started
   when: "'failed' in ( service_result.msg | default('') )"
-
 

@@ -20,6 +20,9 @@ kong_logrotate_maxsize: 500M
 kong_nginx_worker_processes: auto
 kong_mem_cache_size: 128m
 
+kong_force_restart: false
+kong_force_reload: false
+
 kong_proxy_port: 8000
 kong_proxy_listen: "0.0.0.0:{{ kong_proxy_port }}"
 kong_admin_port: 8001
