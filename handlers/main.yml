@@ -3,16 +3,16 @@
   systemd:
     daemon_reload: yes
 
-- name: sequentially restart kong
+- name: sequentially restart kong with {{ kong_sleep_between_restarts }}s sleep between each restart
   # `serial: 1` would be the proper solution here, but that can only be set on play level (upstream issue: https://github.com/ansible/ansible/issues/12170)
   run_once: true
   with_items: "{{ play_hosts }}"
   delegate_to: "{{ item }}"
   shell: systemctl restart kong && sleep {{ kong_sleep_between_restarts }}
 
-- name: sequentially reload kong
+- name: sequentially reload kong with {{ kong_sleep_between_reloads }}s sleep between each reload
   # `serial: 1` would be the proper solution here, but that can only be set on play level (upstream issue: https://github.com/ansible/ansible/issues/12170)
   run_once: true
   with_items: "{{ play_hosts }}"
   delegate_to: "{{ item }}"
-  shell: systemctl reload kong && sleep {{ kong_sleep_between_reload }}
+  shell: systemctl reload kong && sleep {{ kong_sleep_between_reloads }}
